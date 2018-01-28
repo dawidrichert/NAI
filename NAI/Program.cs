@@ -1,15 +1,49 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using OpenCvSharp;
 
 namespace NAI
 {
     class Program
     {
-        static void Main(string[] args)
+        public const int FrameRate = 15;
+        public const int SpaceKey = 32;
+
+        public static void Main()
         {
+            var videoCapture = new VideoCapture(CaptureDevice.Any);
+
+            if (!videoCapture.IsOpened())
+            {
+                Console.WriteLine("Nie można zainicjować kamery.");
+            }
+            else
+            {
+                Console.WriteLine("Zainicjowano kamerę.");
+
+                using (var window = new Window("Kamera"))
+                using (var image = new Mat())
+                {
+                    while (true)
+                    {
+                        videoCapture.Read(image);
+                        if (image.Empty())
+                        {
+                            Console.WriteLine("Kamera przestała odpowiadać.");
+                            break;
+                        }
+
+                        window.ShowImage(image);
+
+                        if (Cv2.WaitKey(FrameRate) == SpaceKey)
+                        {
+
+                        }
+                    }
+                }
+
+            }
+
+            Console.ReadKey();
         }
     }
 }
