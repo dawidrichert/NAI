@@ -26,6 +26,7 @@ namespace NAI
                 using (var hsvWindow = new Window("HSV"))
                 using (var thresholdingWindow = new Window("Progowanie obrazu"))
                 using (var controlPanelWindow = new Window("Panel sterowania"))
+                using (var handWindow = new Window("Wykrywanie dłoni"))
                 using (var cameraImage = new Mat())
                 using (var thresholdingImage = new Mat())
                 using (var hsvImage = new Mat())
@@ -61,6 +62,7 @@ namespace NAI
                     controlPanelWindow.Move(0, videoCapture.FrameHeight + 32);
                     controlPanelWindow.Resize(videoCapture.FrameWidth, videoCapture.FrameHeight);
                     WinApiUtils.SetWindowPosition(videoCapture.FrameWidth, videoCapture.FrameHeight + 32, videoCapture.FrameWidth + 16, videoCapture.FrameHeight + 40);
+                    handWindow.Move(2 * videoCapture.FrameWidth, videoCapture.FrameHeight + 32);
 
                     CreateControlPanelWindow(controlPanelWindow, controlPanelData);
 
@@ -88,9 +90,10 @@ namespace NAI
                         hsvWindow.ShowImage(hsvImage);
                         thresholdingWindow.ShowImage(thresholdingImage);
 
+                        HandDetector.Run(handWindow, thresholdingImage);
+
                         if (Cv2.WaitKey(FrameRate) == SpaceKey)
                         {
-
                         }
                     }
                 }
@@ -109,7 +112,7 @@ namespace NAI
             window.CreateTrackbar("Max (S)", hsvModel.Saturation.Max, 255, pos => hsvModel.Saturation.Max = pos);
             window.CreateTrackbar("Min (V)", hsvModel.Value.Min, 255, pos => hsvModel.Value.Min = pos);
             window.CreateTrackbar("Max (V)", hsvModel.Value.Max, 255, pos => hsvModel.Value.Max = pos);
-            window.CreateTrackbar("Rozmycie", controlPanelData.Blur, 15, pos => controlPanelData.Blur = pos);
+            window.CreateTrackbar("Rozmycie", controlPanelData.Blur, 15, pos => controlPanelData.Blur = pos + 1);
             window.CreateTrackbar("Erozja", controlPanelData.Erode, 10, pos => controlPanelData.Erode = pos + 1);
             window.CreateTrackbar("Dylacja", controlPanelData.Dilate, 10, pos => controlPanelData.Dilate = pos + 1);
         }
