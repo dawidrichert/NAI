@@ -39,7 +39,6 @@ namespace NAI.Utils
                             var defects = Cv2.ConvexityDefects(tempContour, hullsI[0]);
                             if (defects.Length > 0)
                             {
-
                                 for (var j = 1; j < defects.Length; j++)
                                 {
                                     var startIdx = defects[j][0];
