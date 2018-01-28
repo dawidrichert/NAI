@@ -44,6 +44,12 @@ namespace NAI.Utils
                                     Cv2.DrawContours(drawing, contoursPoly, i, Scalar.Red);
                                     Cv2.Circle(drawing, center[i], (int)radius[i], Scalar.White, 2);
                                     Cv2.Circle(drawing, center[i], 5, Scalar.Red, 2);
+
+                                    if (Program.ControlMode)
+                                    {
+                                        // Converting center x/y position into mouse x/y position
+                                        WinApiUtils.SetCursorPos((int) (1366 / 400 * (center[i].X - 100)), (int) (800 / 200 * (center[i].Y - 200)));
+                                    }
                                 }
 
                                 for (var j = 1; j < defects.Length; j++)
@@ -66,7 +72,7 @@ namespace NAI.Utils
                     }
                 }
             }
-            drawing.PutText($"Wykryte palce: {numberOfFingers}", new Point(10, 50), HersheyFonts.HersheyPlain, 2, new Scalar(255, 255, 255));
+            drawing.PutText($"Wykryte palce: {numberOfFingers}, Sterowanie: {(Program.ControlMode ? "TAK" : "NIE")}", new Point(10, 50), HersheyFonts.HersheyPlain, 2, new Scalar(255, 255, 255));
             window.ShowImage(drawing);
         }
     

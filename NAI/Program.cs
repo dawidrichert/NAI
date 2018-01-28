@@ -9,6 +9,7 @@ namespace NAI
     {
         public const int FrameRate = 15;
         public const int SpaceKey = 32;
+        public static bool ControlMode = false;
 
         public static void Main()
         {
@@ -77,6 +78,7 @@ namespace NAI
 
                         Cv2.CvtColor(cameraImage, hsvImage, ColorConversionCodes.BGR2HSV);
                         Cv2.Blur(hsvImage, hsvImage, new Size(controlPanelData.Blur, controlPanelData.Blur));
+                        Cv2.Flip(hsvImage, hsvImage, FlipMode.Y);
 
                         Cv2.InRange(hsvImage, 
                             new Scalar(controlPanelData.HsvModel.Hue.Min, controlPanelData.HsvModel.Saturation.Min, controlPanelData.HsvModel.Value.Min),
@@ -94,6 +96,7 @@ namespace NAI
 
                         if (Cv2.WaitKey(FrameRate) == SpaceKey)
                         {
+                            ControlMode = !ControlMode;
                         }
                     }
                 }
