@@ -47,7 +47,6 @@ namespace NAI.Utils
 
                                     if (Program.ControlMode)
                                     {
-                                        // Converting center x/y position into mouse x/y position
                                         WinApiUtils.SetCursorPos((int) (1366 / 400 * (center[i].X - 100)), (int) (800 / 200 * (center[i].Y - 200)));
                                     }
                                 }

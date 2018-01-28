@@ -9,7 +9,8 @@ namespace NAI
     {
         public const int FrameRate = 15;
         public const int SpaceKey = 32;
-        public static bool ControlMode = false;
+        public const int SKey = 115;
+        public static bool ControlMode;
 
         public static void Main()
         {
@@ -57,6 +58,9 @@ namespace NAI
                         Dilate = 5
                     };
 
+                    AppSettings.LoadControlPanelData(controlPanelData);
+                    Console.WriteLine("Wczytano ustawienia.");
+
                     cameraWindow.Move(0, 0);
                     hsvWindow.Move(videoCapture.FrameWidth, 0);
                     thresholdingWindow.Move(2 * videoCapture.FrameWidth, 0);
@@ -93,10 +97,16 @@ namespace NAI
                         thresholdingWindow.ShowImage(thresholdingImage);
 
                         HandDetector.Run(handWindow, thresholdingImage);
-
-                        if (Cv2.WaitKey(FrameRate) == SpaceKey)
+                        
+                        switch (Cv2.WaitKey(FrameRate))
                         {
-                            ControlMode = !ControlMode;
+                            case SpaceKey:
+                                ControlMode = !ControlMode;
+                                break;
+                            case SKey:
+                                AppSettings.SaveControlPanelData(controlPanelData);
+                                Console.WriteLine("Zapisano ustawienia.");
+                                break;
                         }
                     }
                 }
