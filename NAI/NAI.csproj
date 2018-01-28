@@ -57,6 +57,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\ControlPanelData.cs" />
     <Compile Include="Models\HsvModel.cs" />
     <Compile Include="Models\ModelItem.cs" />
     <Compile Include="Program.cs" />

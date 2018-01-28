@@ -25,43 +25,44 @@ namespace NAI
                 using (var cameraWindow = new Window("Kamera"))
                 using (var hsvWindow = new Window("HSV"))
                 using (var thresholdingWindow = new Window("Progowanie obrazu"))
-                using (var controlPanel = new Window("Panel sterowania"))
+                using (var controlPanelWindow = new Window("Panel sterowania"))
                 using (var cameraImage = new Mat())
                 using (var thresholdingImage = new Mat())
                 using (var hsvImage = new Mat())
                 {
-                    var hsvModel = new HsvModel
+                    var controlPanelData = new ControlPanelData
                     {
-                        Hue = new ModelItem
+                        HsvModel = new HsvModel
                         {
-                            Min = 80,
-                            Max = 110
+                            Hue = new ModelItem
+                            {
+                                Min = 80,
+                                Max = 110
+                            },
+                            Saturation = new ModelItem
+                            {
+                                Min = 0,
+                                Max = 255
+                            },
+                            Value = new ModelItem
+                            {
+                                Min = 0,
+                                Max = 255
+                            }
                         },
-                        Saturation = new ModelItem
-                        {
-                            Min = 0,
-                            Max = 255
-                        },
-                        Value = new ModelItem
-                        {
-                            Min = 0,
-                            Max = 255
-                        }
+                        Blur = 3,
+                        Erode = 5,
+                        Dilate = 5
                     };
 
                     cameraWindow.Move(0, 0);
                     hsvWindow.Move(videoCapture.FrameWidth, 0);
                     thresholdingWindow.Move(2 * videoCapture.FrameWidth, 0);
-                    controlPanel.Move(0, videoCapture.FrameHeight + 32);
-                    controlPanel.Resize(videoCapture.FrameWidth, videoCapture.FrameHeight);
+                    controlPanelWindow.Move(0, videoCapture.FrameHeight + 32);
+                    controlPanelWindow.Resize(videoCapture.FrameWidth, videoCapture.FrameHeight);
                     WinApiUtils.SetWindowPosition(videoCapture.FrameWidth, videoCapture.FrameHeight + 32, videoCapture.FrameWidth + 16, videoCapture.FrameHeight + 40);
-                    
-                    controlPanel.CreateTrackbar("Min (H)", hsvModel.Hue.Min, 179, pos => hsvModel.Hue.Min = pos);
-                    controlPanel.CreateTrackbar("Max (H)", hsvModel.Hue.Max, 179, pos => hsvModel.Hue.Max = pos);
-                    controlPanel.CreateTrackbar("Min (S)", hsvModel.Saturation.Min, 255, pos => hsvModel.Saturation.Min = pos);
-                    controlPanel.CreateTrackbar("Max (S)", hsvModel.Saturation.Max, 255, pos => hsvModel.Saturation.Max = pos);
-                    controlPanel.CreateTrackbar("Min (V)", hsvModel.Value.Min, 255, pos => hsvModel.Value.Min = pos);
-                    controlPanel.CreateTrackbar("Max (V)", hsvModel.Value.Max, 255, pos => hsvModel.Value.Max = pos);
+
+                    CreateControlPanelWindow(controlPanelWindow, controlPanelData);
 
                     while (true)
                     {
@@ -73,8 +74,16 @@ namespace NAI
                         }
 
                         Cv2.CvtColor(cameraImage, hsvImage, ColorConversionCodes.BGR2HSV);
-                        Cv2.InRange(hsvImage, new Scalar(hsvModel.Hue.Min, hsvModel.Saturation.Min, hsvModel.Value.Min), new Scalar(hsvModel.Hue.Max, hsvModel.Saturation.Max, hsvModel.Value.Max), thresholdingImage);
-                      
+                        Cv2.Blur(hsvImage, hsvImage, new Size(controlPanelData.Blur, controlPanelData.Blur));
+
+                        Cv2.InRange(hsvImage, 
+                            new Scalar(controlPanelData.HsvModel.Hue.Min, controlPanelData.HsvModel.Saturation.Min, controlPanelData.HsvModel.Value.Min),
+                            new Scalar(controlPanelData.HsvModel.Hue.Max, controlPanelData.HsvModel.Saturation.Max, controlPanelData.HsvModel.Value.Max),
+                            thresholdingImage);
+
+                        Cv2.Erode(thresholdingImage, thresholdingImage, Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(controlPanelData.Erode, controlPanelData.Erode)));
+                        Cv2.Dilate(thresholdingImage, thresholdingImage, Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(controlPanelData.Dilate, controlPanelData.Dilate)));
+
                         cameraWindow.ShowImage(cameraImage);
                         hsvWindow.ShowImage(hsvImage);
                         thresholdingWindow.ShowImage(thresholdingImage);
@@ -88,6 +97,21 @@ namespace NAI
             }
 
             Console.ReadKey();
+        }
+
+        private static void CreateControlPanelWindow(Window window, ControlPanelData controlPanelData)
+        {
+            var hsvModel = controlPanelData.HsvModel;
+
+            window.CreateTrackbar("Min (H)", hsvModel.Hue.Min, 179, pos => hsvModel.Hue.Min = pos);
+            window.CreateTrackbar("Max (H)", hsvModel.Hue.Max, 179, pos => hsvModel.Hue.Max = pos);
+            window.CreateTrackbar("Min (S)", hsvModel.Saturation.Min, 255, pos => hsvModel.Saturation.Min = pos);
+            window.CreateTrackbar("Max (S)", hsvModel.Saturation.Max, 255, pos => hsvModel.Saturation.Max = pos);
+            window.CreateTrackbar("Min (V)", hsvModel.Value.Min, 255, pos => hsvModel.Value.Min = pos);
+            window.CreateTrackbar("Max (V)", hsvModel.Value.Max, 255, pos => hsvModel.Value.Max = pos);
+            window.CreateTrackbar("Rozmycie", controlPanelData.Blur, 15, pos => controlPanelData.Blur = pos);
+            window.CreateTrackbar("Erozja", controlPanelData.Erode, 10, pos => controlPanelData.Erode = pos + 1);
+            window.CreateTrackbar("Dylacja", controlPanelData.Dilate, 10, pos => controlPanelData.Dilate = pos + 1);
         }
     }
 }
