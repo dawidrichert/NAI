@@ -39,17 +39,6 @@ namespace NAI.Utils
                             var defects = Cv2.ConvexityDefects(tempContour, hullsI[0]);
                             if (defects.Length > 0)
                             {
-                                if (radius[i] > 50)
-                                {
-                                    Cv2.DrawContours(drawing, contoursPoly, i, Scalar.Red);
-                                    Cv2.Circle(drawing, center[i], (int)radius[i], Scalar.White, 2);
-                                    Cv2.Circle(drawing, center[i], 5, Scalar.Red, 2);
-
-                                    if (Program.ControlMode)
-                                    {
-                                        WinApiUtils.SetCursorPos((int) (1366 / 400 * (center[i].X - 100)), (int) (800 / 200 * (center[i].Y - 200)));
-                                    }
-                                }
 
                                 for (var j = 1; j < defects.Length; j++)
                                 {
@@ -64,6 +53,18 @@ namespace NAI.Utils
                                         Cv2.Line(drawing, ptStart, ptFar, Scalar.Pink, 2);
 
                                         numberOfFingers++;
+                                    }
+                                }
+
+                                if (radius[i] > 50)
+                                {
+                                    Cv2.DrawContours(drawing, contoursPoly, i, Scalar.Red);
+                                    Cv2.Circle(drawing, center[i], (int)radius[i], Scalar.White, 2);
+                                    Cv2.Circle(drawing, center[i], 5, Scalar.Red, 2);
+
+                                    if (Program.ControlMode && numberOfFingers >= 4)
+                                    {
+                                        WinApiUtils.SetCursorPos((int)(1366 / 400 * (center[i].X - 100)), (int)(800 / 200 * (center[i].Y - 200)));
                                     }
                                 }
                             }
