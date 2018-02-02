@@ -84,13 +84,8 @@ namespace NAI
                         Cv2.Blur(hsvImage, hsvImage, new Size(controlPanelData.Blur, controlPanelData.Blur));
                         Cv2.Flip(hsvImage, hsvImage, FlipMode.Y);
 
-                        Cv2.InRange(hsvImage, 
-                            new Scalar(controlPanelData.HsvModel.Hue.Min, controlPanelData.HsvModel.Saturation.Min, controlPanelData.HsvModel.Value.Min),
-                            new Scalar(controlPanelData.HsvModel.Hue.Max, controlPanelData.HsvModel.Saturation.Max, controlPanelData.HsvModel.Value.Max),
-                            thresholdingImage);
-
-                        Cv2.Erode(thresholdingImage, thresholdingImage, Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(controlPanelData.Erode, controlPanelData.Erode)));
-                        Cv2.Dilate(thresholdingImage, thresholdingImage, Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(controlPanelData.Dilate, controlPanelData.Dilate)));
+                        ThresholdImage(hsvImage, thresholdingImage, controlPanelData);
+                        RemoveSmallObjectsFromTheForeground(thresholdingImage, controlPanelData);
 
                         cameraWindow.ShowImage(cameraImage);
                         hsvWindow.ShowImage(hsvImage);
@@ -113,6 +108,20 @@ namespace NAI
             }
 
             Console.ReadKey();
+        }
+
+        private static void RemoveSmallObjectsFromTheForeground(Mat thresholdingImage, ControlPanelData controlPanelData)
+        {
+            Cv2.Erode(thresholdingImage, thresholdingImage, Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(controlPanelData.Erode, controlPanelData.Erode)));
+            Cv2.Dilate(thresholdingImage, thresholdingImage, Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(controlPanelData.Dilate, controlPanelData.Dilate)));
+        }
+
+        private static void ThresholdImage(Mat hsvImage, Mat thresholdingImage, ControlPanelData controlPanelData)
+        {
+            Cv2.InRange(hsvImage,
+                new Scalar(controlPanelData.HsvModel.Hue.Min, controlPanelData.HsvModel.Saturation.Min, controlPanelData.HsvModel.Value.Min),
+                new Scalar(controlPanelData.HsvModel.Hue.Max, controlPanelData.HsvModel.Saturation.Max, controlPanelData.HsvModel.Value.Max),
+                thresholdingImage);
         }
 
         private static void CreateControlPanelWindow(Window window, ControlPanelData controlPanelData)
