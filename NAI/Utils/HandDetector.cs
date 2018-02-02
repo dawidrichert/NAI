@@ -1,9 +1,15 @@
-﻿using OpenCvSharp;
+﻿using System;
+using OpenCvSharp;
 
 namespace NAI.Utils
 {
     public class HandDetector
     {
+        private static int _posX;
+        private static int _posY;
+        private static DateTime _previousClickTime;
+        private static DateTime _currentClickTime;
+
         public static void Run(Window window, Mat thresholdingImage)
         {
             var numberOfFingers = 0;
@@ -61,14 +67,23 @@ namespace NAI.Utils
                                     Cv2.Circle(drawing, center[i], (int)radius[i], Scalar.White, 2);
                                     Cv2.Circle(drawing, center[i], 5, Scalar.Red, 2);
 
-                                    if (Program.ControlMode && numberOfFingers >= 4)
+                                    if (Program.ControlMode)
                                     {
-                                        WinApiUtils.SetCursorPos((int)(1366 / 400 * (center[i].X - 100)), (int)(800 / 200 * (center[i].Y - 200)));
+                                        _posX = (int) (4 * (center[i].X - 100));
+                                        _posY = (int) (4 * (center[i].Y - 100));
+                                        WinApiUtils.SetCursorPos(_posX, _posY);
                                     }
                                 }
                             }
                         }
                     }
+                }
+
+                _currentClickTime = DateTime.Now;
+                if (numberOfFingers == 2 && (_currentClickTime - _previousClickTime).TotalSeconds > 3)
+                {
+                    WinApiUtils.LeftMouseClick(_posX, _posY);
+                    _previousClickTime = DateTime.Now;
                 }
             }
             drawing.PutText($"Wykryte palce: {numberOfFingers}, Sterowanie: {(Program.ControlMode ? "TAK" : "NIE")}", new Point(10, 50), HersheyFonts.HersheyPlain, 2, new Scalar(255, 255, 255));

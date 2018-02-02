@@ -5,7 +5,7 @@ using OpenCvSharp;
 
 namespace NAI
 {
-    class Program
+    internal class Program
     {
         public const int FrameRate = 15;
         public const int SpaceKey = 32;
