@@ -14,6 +14,7 @@ namespace NAI.Utils
 
         public static void Run(Window window, Mat thresholdingImage)
         {
+            _numberOfFingers = 0;
             Mat drawing = Mat.Zeros(thresholdingImage.Size(), MatType.CV_8UC3);
             Cv2.FindContours(thresholdingImage, out var contours, out var _, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
             if (contours.Length > 0)
@@ -27,7 +28,7 @@ namespace NAI.Utils
                 DrawContours(contours, contoursPoly, drawing);
                 
                 _currentClickTime = DateTime.Now;
-                if (_numberOfFingers == 2 && (_currentClickTime - _previousClickTime).TotalSeconds > 3)
+                if (_numberOfFingers == 2 && (_currentClickTime - _previousClickTime).TotalSeconds > 3 && Program.ControlMode)
                 {
                     WinApiUtils.LeftMouseClick(_posX, _posY);
                     _previousClickTime = DateTime.Now;
